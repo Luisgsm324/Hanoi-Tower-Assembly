@@ -1,14 +1,21 @@
 section .data
-    v1 dw '109', 0xA, 0xD
-    lenv1 equ $ - v1
+    ;v1 dw '109', 0xA, 0xD
+    ;lenv1 equ $ - v1
 
 section .bss
+    v1 resb 1
     BUFFER resb 10
 
 section .text
 global _start
 
 _start:
+    mov eax, 0x3
+    mov ebx, 0x0
+    mov ecx, v1
+    mov edx, 1
+    int 0x80
+
     call convert_value
     call show_value 
 
@@ -41,10 +48,10 @@ string_to_int:
 
 .prox_digit:
     movzx eax, byte[esi]
-    test al, al  ; Verificar se chegou ao final da string
+    test al, al  
     jz .end_string_to_int
     inc esi
-    sub al, '0'  ; Subtrair o valor ASCII de '0'
+    sub al, '0'  
     imul ebx, 10
     add ebx, eax
     jmp .prox_digit
@@ -55,14 +62,14 @@ string_to_int:
 
 
 int_to_string:
-    lea esi, [BUFFER + 10] ; Começar a escrever a partir do final do buffer
-    mov byte [esi], 0 ; Null terminator
-    dec esi ; Retroceder um byte
+    lea esi, [BUFFER + 10] 
+    mov byte [esi], 0 
+    dec esi 
     mov ebx, 10
 .prox_digit:
     xor edx, edx
     div ebx
-    add dl, '0' ; Adicionar o valor ASCII de '0'
+    add dl, '0'
     dec esi
     mov [esi], dl
     test eax, eax
