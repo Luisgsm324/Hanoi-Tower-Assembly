@@ -3,98 +3,66 @@ section .data
     len_question_length_disks equ $- question_length_disks - 1
 
     firstMsg db "Mova disco ", 0x0
-    lenFirstMsg equ $- firstMsg - 1
-    
-    SecondMsg db " de ", 0x0
-    lenSecondMsg equ $- SecondMsg - 1 
-
+    secondMsg db " de ", 0x0
     thirdMsg db " para ", 0x0
-    lenThirdMsg equ $- thirdMsg - 1
-    
-    
-    
-    one_hex db 0x31, 0x0
-    
-    next_line db 0xA, 0x0
+    nextLine db 0xA
+    lenFirstMsg equ $- firstMsg
     
     buffer db 0
 
 section .bss
-    length_disks resb 0x1
+    length_disks_string resb 1 
+    length_disks_hex resd 1
 
 section .text
 global _start
 
-; Função para printar
-print:
+_start:
+    ; Printando numero de discos
     mov eax, 0x4
     mov ebx, 0x1
+    mov ecx, question_length_disks
+    mov edx, len_question_length_disks
     int 0x80
-    ret
-
-_start:
-        ; ; Printando numero de discos
-        ; mov ecx, question_length_disks
-        ; mov edx, len_question_length_disks
-        ; call print
         
-        ; ; Armazenando número de discos
-        ; mov eax, 0x3
-        ; mov ebx, 0x0
-        ; mov ecx, length_disks
-        ; mov edx, 2
-        ; int 0x80
+    ; Armazenando número de discos
+    mov eax, 0x3
+    mov ebx, 0x0
+    mov ecx, length_disks_string
+    mov edx, 2
+    int 0x80
+
+    movzx eax, byte[length_disks_string]
+    mov [length_disks_hex], eax
     
     mov eax, 0x42
     mov ebx, 0x43
     mov ecx, 0x41
-    mov edx, 0x33
+    mov edx, dword[length_disks_hex] ; 51 -> 3 (Número de discos)
 
-    jmp hanoi    
+    call hanoi    
+    jmp exit
     
 print_move:
-    mov ecx, firstMsg
-    mov edx, lenFirstMsg
-    call print
-    
     mov eax, [esp+4]
-    mov [buffer], al
-    mov ecx, buffer
-    mov edx, 1
-    call print
-    
-    mov ecx, SecondMsg
-    mov edx, lenSecondMsg
-    call print
+    mov [firstMsg+11], al
     
     mov ebx, [esp+8]
-    mov [buffer], bl
-    mov ecx, buffer
-    mov edx, 1
-    call print
-    
-    mov ecx, thirdMsg
-    mov edx, lenThirdMsg
-    call print
+    mov [secondMsg+4], bl
 
     mov ecx, [esp+12]
-    mov [buffer], cl
-    mov ecx, buffer
-    mov edx, 1
-    call print
+    mov [thirdMsg+6], cl
     
-    mov ecx, next_line
-    mov edx, 1
-    call print
+    mov eax, 0x4
+    mov ebx, 0x1
+    mov ecx, firstMsg
+    mov edx, lenFirstMsg
+    int 0x80
     ret
 
-    
 igual_a_1:
     call print_move
-    pop eax
-    pop eax
-    pop eax
-    pop eax
+    add esp, 16
     ret
 
 ; auxiliar = eax
@@ -117,7 +85,6 @@ hanoi:
     mov eax, [esp+8]
     
     call hanoi
-    
     call print_move
     
     mov edx, [esp]
@@ -128,10 +95,7 @@ hanoi:
 
     call hanoi
     
-    pop eax
-    pop eax
-    pop eax
-    pop eax
+    add esp, 16
     ret
     
 exit:
