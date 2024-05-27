@@ -2,7 +2,7 @@ section .data
     question_length_disks db "Qual o número de discos? ", 0x0
     len_question_length_disks equ $- question_length_disks - 1
 
-    firstMsg db "Mova disco ", 0x0
+    firstMsg db "Mova o disco ", 0x0
     secondMsg db " de ", 0x0
     thirdMsg db " para ", 0x0
     nextLine db 0xA
@@ -32,6 +32,7 @@ _start:
     mov edx, 2
     int 0x80
 
+
     movzx eax, byte[length_disks_string]
     mov [length_disks_hex], eax
     
@@ -45,7 +46,7 @@ _start:
     
 print_move:
     mov eax, [esp+4]
-    mov [firstMsg+11], al
+    mov [firstMsg+13], al
     
     mov ebx, [esp+8]
     mov [secondMsg+4], bl
@@ -60,6 +61,7 @@ print_move:
     int 0x80
     ret
 
+    
 igual_a_1:
     call print_move
     add esp, 16
@@ -85,6 +87,7 @@ hanoi:
     mov eax, [esp+8]
     
     call hanoi
+    
     call print_move
     
     mov edx, [esp]
